@@ -20,6 +20,8 @@ utils = osc = ___ = null
   sender = new osc.UdpSender host, port, opts
   # can we store a shutdown function for this output and return the id in the closet and
   # return the function to send a message.
-  (path, val) ->  
-    #___ "out #{host}:#{port}", path, val
+  (path, val) ->
+    val.types ?= ''
+    val.values ?= []
+    ___ "out #{host}:#{port} #{path}?types=#{val.types}&values=#{val.values}"
     sender.send path, val.types, val.values
