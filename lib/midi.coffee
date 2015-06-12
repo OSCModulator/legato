@@ -1,6 +1,6 @@
 'user strict'
 
-L = utils = midi = midi_in = ___ = null
+L = utils = midi = ___ = null
 
 @inject = (router, legatoUtils, rtMidi) ->
   L = router
@@ -9,6 +9,7 @@ L = utils = midi = midi_in = ___ = null
   ___ = utils.____ '[midi]'
 
 # Parse method copied from https://github.com/hhromic/midi-utils-js/blob/master/midiparser.js#L418
+# TODO We might want to just pull in that project for our midi parsing needs (though we don't really want its EventDispatch-ing).
 parse = (port, msg) ->
   type = msg[0] & 0xF0
   channel = msg[0] & 0x0F
@@ -52,10 +53,7 @@ parse = (port, msg) ->
 @In = (port, virtual=no) ->
   (router) ->
     ___ "in: #{port}#{virtual and 'v' or ''} open"
-    # TODO Should be able to open multiple midi ports (can only open one at the moment
-    # due to a defect with node-midi. Remember that we'll only need one midi instance per port.
-    unless midi_in?
-      midi_in = new midi.input()
+    midi_in = new midi.input()
 
     # TODO Should we guard against opening virtual ports on systems that don't provide them?
     midi_in["open#{virtual and 'Virtual' or ''}Port"] port
@@ -76,8 +74,7 @@ parse = (port, msg) ->
 
 @ins = ->
   ___ "in: retrieving available ports."
-  unless midi_in?
-    midi_in = new midi.input()
+  midi_in = new midi.input()
 
   for i in [0...midi_in.getPortCount()]
     midi_in.getPortName i
