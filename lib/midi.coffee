@@ -9,7 +9,8 @@ L = utils = midi = ___ = null
   ___ = utils.____ '[midi]'
 
 # Parse method copied from https://github.com/hhromic/midi-utils-js/blob/master/midiparser.js#L418
-# TODO We might want to just pull in that project for our midi parsing needs (though we don't really want its EventDispatch-ing).
+# TODO We might want to just pull in that project for our midi parsing needs 
+# (though we don't really want its EventDispatch-ing).
 parse = (port, msg) ->
   type = msg[0] & 0xF0
   channel = msg[0] & 0x0F
