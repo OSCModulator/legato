@@ -1,16 +1,16 @@
 'user strict'
 
-L = utils = midi = ___ = null
+L = utils = midi = parser = ___ = null
 
-@inject = (router, legatoUtils, rtMidi) ->
+@inject = (router, legatoUtils, rtMidi, midiHelp) ->
   L = router
   utils = legatoUtils
   midi = rtMidi
+  parser = midiHelp
   ___ = utils.____ '[midi]'
 
 # Parse method copied from https://github.com/hhromic/midi-utils-js/blob/master/midiparser.js#L418
-# TODO We might want to just pull in that project for our midi parsing needs 
-# (though we don't really want its EventDispatch-ing).
+# TODO Use `parser` instead.
 parse = (port, msg) ->
   type = msg[0] & 0xF0
   channel = msg[0] & 0x0F
@@ -62,16 +62,40 @@ parse = (port, msg) ->
       router parse(port, msg)...
     return -> midi_in.closePort(); ___ 'in:˘close'
 
+# Returns a function that can be used to send a midi message on the port passed.
+# @param port {int | string} If you wish to open your own midi port, this will be the name of your
+# midi port. If you wish to connect to an existing port, this is the port id 0-N. If you
+# pass ({int}, false), your int will be the new port name (which is probably not what you intend).
+# @param virtual {boolean} If true, you are opening a virtual port. If false, you intend to 
+# send messages on an existing port (default). Sending on an existing port will fail if that
+# port doesn't exist yet.
+# @return {Function} A function that can be called to send a midi message on the port you 
+# specified.
+#   The function takes the following parameters:
+#   @param type {String} The type of message to send as described at 
+#   https://github.com/charlesholbrow/midi-help#documentation
+#
+#   Depending on the type of message to send, you can pass other parameters such as:
+#
+#   note {int} The note number to send.
+#   channel {int} The channel to send on (0-15).
+#   value {int} The note value to send (0-127).
+# TODO Make it possible to use the port name to open an existing port. In this case
+# we would loop through the port names looking for a matching name and then open the
+# port at that index.
 @Out = (port, virtual=no) ->
   ___ "out: #{port}#{virtual and 'v' or ''} open"
   midi_out = new midi.output()
   midi_out["open#{virtual and 'Virtual' or ''}Port"] port
-  # can we store a shutdown function for this output and return the id in the closet and
-  # return the function to send a message.
-  # and why does this call the midi_out.on function?
-  midi_out.on 'message', (deltaTime, msg) ->
-    router parse(port, msg)...
-  return utils.store -> midi_out.closePort(); ___ 'out: close'
+
+  # Store it so it can be destroyed later.
+  utils.store -> midi_out.closePort(); ___ 'out: close'
+
+  (type, rest...) ->
+    parsed = parser[type].apply(parser, rest)
+    ___ "out #{rest} = #{parsed}"
+    midi_out.sendMessage(parsed)
+
 
 @ins = ->
   ___ "in: retrieving available ports."
@@ -85,3 +109,4 @@ parse = (port, msg) ->
   midi_out = new midi.output()
   for o in [0...midi_out.getPortCount()]
     midi_out.getPortName o
+
