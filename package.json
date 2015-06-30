@@ -17,12 +17,13 @@
   "license": "Public Domain",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "grunt-jasmine-node": "~0.1.0",
-    "grunt-contrib-watch": "~0.5.3",
+    "grunt": "~0.4.1",
     "grunt-coffeelint": "0.0.7",
     "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-jasmine-node": "~0.1.0",
     "load-grunt-tasks": "~0.2.0",
-    "grunt": "~0.4.1"
+    "midi-help": "^0.2.1"
   },
   "dependencies": {
     "lodash": "~2.3.0",
