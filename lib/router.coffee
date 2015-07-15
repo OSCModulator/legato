@@ -27,7 +27,7 @@ class Router
   @dispatch = dispatch = (path, val) ->
     for id, [path_, cb] of routes
       if path.match path_
-        (utils.bind cb, path:path, val:val) val
+        (utils.bind cb, path:path, val:val) val, path
       else
         # I added this else branch to make sure that null entries are not added to the
         # results. I'm not sure if this is the desired behavior.
