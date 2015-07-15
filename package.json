@@ -23,15 +23,15 @@
     "grunt-contrib-coffee": "~0.7.0",
     "load-grunt-tasks": "~0.2.0",
     "grunt": "~0.4.1"
-    "midi-help": "^0.2.1"
   },
   "dependencies": {
     "lodash": "~2.3.0",
-    "midi": "~0.9.0",
+    "midi": "git+https://github.com/OSCModulator/node-midi#v0.9.2+nan-1.5.3",
+    "midi-help": "^0.2.1",
     "omgosc": "~1.0.0",
     "firmata": "~0.3.0",
     "underscore.deferred": "~0.4.0",
-    "coffee-script": "~1.6.3"
+    "coffee-script": "^1.9.1"
   },
   "scripts": {
     "test": "grunt test"
