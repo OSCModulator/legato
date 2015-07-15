@@ -9,6 +9,8 @@ L = utils = midi = midi_in = ___ = null
   ___ = utils.____ '[midi]'
 
 # Parse method copied from https://github.com/hhromic/midi-utils-js/blob/master/midiparser.js#L418
+# TODO Remove this parser in favor of midiHelp or if we continue to use this code, include the MIT
+# license as required by midiparser.js.
 parse = (port, msg) ->
   type = msg[0] & 0xF0
   channel = msg[0] & 0x0F
