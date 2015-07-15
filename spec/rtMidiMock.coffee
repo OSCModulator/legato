@@ -27,8 +27,8 @@ class MidiOutputMock
     return true
   openVirtualPort: ->
     return true
-  on: (message, callback) ->
-    @messageCallbacks.push(callback)
+  sendMessage: ->
+    return true
   closePort: ->
     return true
 
@@ -55,7 +55,7 @@ exports.rtMidiMock = {
     spyOn(outputMock, 'getPortName').andCallThrough()
     spyOn(outputMock, 'openPort')
     spyOn(outputMock, 'openVirtualPort')
-    spyOn(outputMock, 'on').andCallThrough()
+    spyOn(outputMock, 'sendMessage')
     spyOn(outputMock, 'closePort')
 
     exports.rtMidiMock.outputs.push(outputMock)

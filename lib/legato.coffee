@@ -4,13 +4,14 @@ router = require( './router' ).router
 utils = require( './utils' ).utils
 legatoMidi = require './midi'
 midi = require 'midi'
+midiHelp = require 'midi-help'
 omgosc = require 'omgosc'
 legatoOSC = require './osc'
 _ = require 'lodash'
 
 utils.inject _
 router.inject utils
-legatoMidi.inject router, utils, midi
+legatoMidi.inject router, utils, midi, midiHelp
 legatoOSC.inject utils, omgosc
 
 @midi = legatoMidi

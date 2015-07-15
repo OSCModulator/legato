@@ -1,6 +1,7 @@
 'use strict'
 
 sandbox = require('./utils').sandbox
+midiHelp = require('midi-help')
 _ = require 'lodash'
 
 rtMidiMock = {}
@@ -36,6 +37,8 @@ describe 'integration', ->
         return midi
       else if lib is './osc'
         return osc
+      else if lib is 'midi-help'
+        return midiHelp
       else
         return {}
 
@@ -116,10 +119,12 @@ describe 'integration', ->
 
     # Fake a midi message.
     fakeMessage = [144, 59, 120]
-    console.log 'faking a message'
     rtMidiMock.inputs[0].messageCallbacks[0] 0, fakeMessage
 
     # Our local callback method should be called when the route matches.
     expect(wrapper.localCallback).toHaveBeenCalled()
     expect(wrapper.localCallback.calls[0].args[0]).toBeGreaterThan 0
+
+  xit 'should be able to route input OSC messages'
+  xit 'should be able to route input messages to both midi and osc outputs'
 
