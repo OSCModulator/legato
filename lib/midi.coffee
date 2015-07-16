@@ -63,8 +63,9 @@ parse = (port, msg) ->
     # TODO Should we guard against opening virtual ports on systems that don't provide them?
     midi_in["open#{virtual and 'Virtual' or ''}Port"] port
     midi_in.on 'message', (deltaTime, msg) ->
+      ___ "received midi #{msg}"
       router parse(port, msg)...
-    return -> midi_in.closePort(); ___ 'in:˘close'
+    return -> midi_in.closePort(); ___ 'in: close'
 
 # Returns a function that can be used to send a midi message on the port passed.
 # @param port {int | string} If you wish to open your own midi port, this will be the name of your
@@ -98,8 +99,18 @@ parse = (port, msg) ->
   utils.store -> midi_out.closePort(); ___ 'out: close'
 
   (type, rest...) ->
+    # Normalize the value parameter which is passed in a different position
+    # based on the type of message.
+    switch type
+      when 'pitchBend', 'channelPressure' then index = 0
+      when 'songPosition' then index = 50 # Use the value as passed.
+      else index = 1
+
+    if rest.length >= index
+      rest[index] = parseInt(rest[index] * 127)
+
     parsed = parser[type].apply(parser, rest)
-    ___ "out #{rest} = #{parsed}"
+    ___ "out #{parsed}"
     midi_out.sendMessage(parsed)
 
 

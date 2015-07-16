@@ -20,6 +20,8 @@ utils = osc = ___ = null
   sender = new osc.UdpSender host, port, opts
   # can we store a shutdown function for this output and return the id in the closet and
   # return the function to send a message.
+  # TODO Let's change this API to take a list of type/value pairs (since we've already
+  # changed the API to allow multiple values).
   (path, val) ->
     val.types ?= ''
     val.values ?= []

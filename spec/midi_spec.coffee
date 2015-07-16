@@ -131,7 +131,7 @@ describe 'legato.midi', ->
 
     it 'should be able to send noteOn messages.', ->
       note = 60
-      value = 70
+      value = .5
       channel = 3
       output = midi.Out 'output1', true
       output('noteOn', note, value, channel)
@@ -139,11 +139,11 @@ describe 'legato.midi', ->
       firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
       expect(firstCall.args[0][0]).toEqual(147)
       expect(firstCall.args[0][1]).toEqual(note)
-      expect(firstCall.args[0][2]).toEqual(value)
+      expect(firstCall.args[0][2]).toEqual(63)
 
     it 'should be able to send noteOff messages.', ->
       note = 65
-      value = 90
+      value = .4
       channel = 8
       output = midi.Out 'output1', true
       output('noteOff', note, value, channel)
@@ -151,32 +151,32 @@ describe 'legato.midi', ->
       firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
       expect(firstCall.args[0][0]).toEqual(136)
       expect(firstCall.args[0][1]).toEqual(note)
-      expect(firstCall.args[0][2]).toEqual(value)
+      expect(firstCall.args[0][2]).toEqual(50)
 
     it 'should be able to send pitchBend messages.', -> 
-      value = 9
+      value = .4
       channel = 7
       output = midi.Out 'output1', true
       output('pitchBend', value, channel)
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
       expect(firstCall.args[0][0]).toEqual(231)
-      expect(firstCall.args[0][1]).toEqual(value)
+      expect(firstCall.args[0][1]).toEqual(50)
       expect(firstCall.args[0][2]).toEqual(0)
 
     it 'should be able to send channelPressure messages.', ->
-      value = 127
+      value = 1
       channel = 3
       output = midi.Out 'output1', true
       output('channelPressure', value, channel)
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
       expect(firstCall.args[0][0]).toEqual(211)
-      expect(firstCall.args[0][1]).toEqual(value)
+      expect(firstCall.args[0][1]).toEqual(127)
 
     it 'should be able to send cc messages.', ->
       note = 12
-      value = 127
+      value = 1
       channel = 11
       output = midi.Out 'output1', true
       output('cc', note, value, channel)
@@ -184,7 +184,7 @@ describe 'legato.midi', ->
       firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
       expect(firstCall.args[0][0]).toEqual(187)
       expect(firstCall.args[0][1]).toEqual(note)
-      expect(firstCall.args[0][2]).toEqual(value)
+      expect(firstCall.args[0][2]).toEqual(127)
 
     it 'should be able to send clock messages.', ->
       output = midi.Out 'output1', true
