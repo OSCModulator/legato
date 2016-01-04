@@ -54,7 +54,7 @@ parse = (port, msg) ->
 #     @return {Function} A function that should be called to close down this listener.
 @In = (port, virtual=no) ->
   (router) ->
-    ___ "in: #{port}#{virtual and 'v' or ''} open"
+    ___ "in: open #{virtual and 'virtual ' or ''}port #{port}"
     # TODO Should be able to open multiple midi ports (can only open one at the moment
     # due to a defect with node-midi. Remember that we'll only need one midi instance per port.
     unless midi_in?
@@ -89,7 +89,7 @@ parse = (port, msg) ->
 # we would loop through the port names looking for a matching name and then open the
 # port at that index.
 @Out = (port, virtual=no) ->
-  ___ "out: #{port}#{virtual and 'v' or ''} open"
+  ___ "out: open #{virtual and 'virtual ' or ''}port #{port}"
   # TODO Will we run into the same issue with crashes where openning an output
   # without listening to it causes a crash?
   midi_out = new midi.output()
@@ -120,7 +120,9 @@ parse = (port, msg) ->
   unless midi_in?
     midi_in = new midi.input()
 
+  ___ "in: total open ports #{midi_in.getPortCount()}"
   for i in [0...midi_in.getPortCount()]
+    ___ "in: port #{i} is #{midi_in.getPortName(i)}"
     midi_in.getPortName i
 
 @outs = ->
@@ -128,6 +130,8 @@ parse = (port, msg) ->
   # TODO Will we run into the same issue with crashes where openning an output
   # without listening to it causes a crash?
   midi_out = new midi.output()
+  ___ "out: total open ports #{midi_out.getPortCount()}"
   for o in [0...midi_out.getPortCount()]
+    ___ "out: port #{o} is #{midi_in.getPortName(o)}"
     midi_out.getPortName o
 

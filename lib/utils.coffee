@@ -10,6 +10,10 @@ class Utils
   @inject = (lodash) ->
     _ = lodash
 
+  @init = ->
+    inputsCreated = 0
+    @clear
+
   # Log a list of arguments to the console.
   @___ = ___ = -> console.log '[legato]', arguments...; arguments[0]
 

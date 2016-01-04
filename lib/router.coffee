@@ -9,6 +9,7 @@ class Router
 
   @init = ->
     @deinit()
+    utils.init()
     utils.___ 'init'
     return this
 
@@ -99,6 +100,6 @@ class Router
     utils.callAll()
     # Reset both the closet and the routes.
     utils.clear()
-    @routes = {}
+    @routes = routes = {}
 
 @router = Router
