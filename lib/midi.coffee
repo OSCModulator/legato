@@ -132,6 +132,6 @@ parse = (port, msg) ->
   midi_out = new midi.output()
   ___ "out: total open ports #{midi_out.getPortCount()}"
   for o in [0...midi_out.getPortCount()]
-    ___ "out: port #{o} is #{midi_in.getPortName(o)}"
+    ___ "out: port #{o} is #{midi_out.getPortName(o)}"
     midi_out.getPortName o
 

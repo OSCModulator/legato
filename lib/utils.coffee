@@ -12,7 +12,7 @@ class Utils
 
   @init = ->
     inputsCreated = 0
-    @clear
+    @clear()
 
   # Log a list of arguments to the console.
   @___ = ___ = -> console.log '[legato]', arguments...; arguments[0]
