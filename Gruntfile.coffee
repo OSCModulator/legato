@@ -25,6 +25,10 @@ module.exports = (grunt) ->
         useDotNotation: true
         consolidate: true
 
+    karma:
+      unit:
+        configFile: 'karma.conf.js'
+
     coffeelint:
       options: coffeelint
       gruntfile:
@@ -59,6 +63,8 @@ module.exports = (grunt) ->
   grunt.registerTask('unit-watch', ['watch:unit-watch'])
 
   grunt.registerTask('test', ['jasmine_node'])
+
+  grunt.registerTask('test-browser', ['karma:unit'])
 
   grunt.registerTask('default', ['coffeelint', 'jasmine_node'])
 
