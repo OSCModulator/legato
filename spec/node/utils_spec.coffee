@@ -7,7 +7,7 @@ describe 'legatoUtils', ->
   mock = {}
 
   beforeEach ->
-    legatoUtils = require( '../lib/utils' ).utils
+    legatoUtils = require( '../../lib/utils' ).utils
     legatoUtils.inject _
 
     mock =
@@ -26,7 +26,7 @@ describe 'legatoUtils', ->
     expect(console.log).toHaveBeenCalledWith('[legato]', 'blah')
 
     legatoUtils.___ 'foo', 'bar', 1, true, null
-    expect(console.log.calls[2].args).toEqual(['[legato]','foo','bar',1,true,null])
+    expect(console.log.calls.argsFor(2)).toEqual(['[legato]','foo','bar',1,true,null])
 
   it 'should allow adding of callbacks to the closet', ->
     expect(Object.keys(legatoUtils.closet).length).toBe 0, 'The closet should start out empty.'

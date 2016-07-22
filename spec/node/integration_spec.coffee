@@ -23,7 +23,7 @@ describe 'integration', ->
     localRequire = (lib) ->
       if lib is 'lodash'
         return _
-      else if lib is 'midi'
+      else if lib is 'midi' or lib is './browser-midi'
         return rtMidiMock
       else if lib is 'omgosc'
         return omgosc
@@ -47,7 +47,7 @@ describe 'integration', ->
       exports: {},
       spyOn: spyOn
 
-    sandbox 'spec/rtMidiMock.coffee', rtMidiMockGlobals
+    sandbox 'spec/node/rtMidiMock.coffee', rtMidiMockGlobals
     rtMidiMock = rtMidiMockGlobals.exports.rtMidiMock
 
     utilsClass = sandbox( 'lib/utils.coffee',
@@ -79,7 +79,7 @@ describe 'integration', ->
 
 
   it 'should be able to add midi listeners.', ->
-    spyOn(rtMidiMock, 'input').andCallThrough()
+    spyOn(rtMidiMock, 'input').and.callThrough()
 
     wrapper = {}
     wrapper.midiInputFunction = midi.In 0
@@ -88,8 +88,8 @@ describe 'integration', ->
     expect(typeof(wrapper.midiInputFunction))
       .toBe('function', 'legato.legatoMidi.In should return a function to be executed by legato.')
 
-    spyOn(wrapper, 'midiInputFunction').andCallThrough()
-    spyOn(utils, 'store').andCallThrough()
+    spyOn(wrapper, 'midiInputFunction').and.callThrough()
+    spyOn(utils, 'store').and.callThrough()
 
     legato.in wrapper.midiInputFunction
 
@@ -99,11 +99,11 @@ describe 'integration', ->
     expect(rtMidiMock.inputs[0].on).toHaveBeenCalled()
     expect(utils.store).toHaveBeenCalled()
     # It should have acheived the above by calling the midiInputFunction we created with legato.midi.In
-    expect(wrapper.midiInputFunction.calls.length).toBe(1)
+    expect(wrapper.midiInputFunction.calls.count()).toBe(1)
     # The midi input function should have been passed a function to execute
     # when midi messages are received. That function will dispatch to any listeners added
     # with legato.on().
-    expect(typeof(wrapper.midiInputFunction.calls[0].args[0])).toBe('function')
+    expect(typeof(wrapper.midiInputFunction.calls.argsFor(0)[0])).toBe('function')
 
     wrapper.localCallback = ->
       console.log 'LOCAL CALLBACK'
@@ -115,7 +115,7 @@ describe 'integration', ->
     expect(wrapper.localCallback).not.toHaveBeenCalled()
 
     wrapper.midiMessageRouter = rtMidiMock.inputs[0].messageCallbacks[0]
-    spyOn(wrapper, 'midiMessageRouter').andCallThrough()
+    spyOn(wrapper, 'midiMessageRouter').and.callThrough()
 
     # Fake a midi message.
     fakeMessage = [144, 59, 120]
@@ -123,7 +123,7 @@ describe 'integration', ->
 
     # Our local callback method should be called when the route matches.
     expect(wrapper.localCallback).toHaveBeenCalled()
-    expect(wrapper.localCallback.calls[0].args[0]).toBeGreaterThan 0
+    expect(wrapper.localCallback.calls.argsFor(0)[0]).toBeGreaterThan 0
 
   xit 'should be able to route input OSC messages'
   xit 'should be able to route input messages to both midi and osc outputs'

@@ -31,7 +31,7 @@
   },
   "cyclomatic_complexity": {
     "value": 10,
-    "level": "error"
+    "level": "ignore"
   },
   "no_backticks": {
     "level": "error"

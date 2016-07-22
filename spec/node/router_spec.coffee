@@ -147,7 +147,7 @@ describe 'legatoRouter', ->
     results = legato.dispatch '/input1/1/note/1', 10
 
     expect(results.length).toBe 3, 'Only some of the routes should have matched.'
-    expect(mock.callback.calls.length).toBe 3, 'The mock callback should have been called 3 times.'
+    expect(mock.callback.calls.count()).toBe 3, 'The mock callback should have been called 3 times.'
     expect(mock.otherCallback).not.toHaveBeenCalled()
 
   it 'should allow registration of input ports.', ->
@@ -172,7 +172,7 @@ describe 'legatoRouter', ->
 
     portMock.doStuff.apply portMock, ['/1/note/1', 10]
 
-    expect(mock.callback.calls.length).toBe 3, 'Only the three matching callbacks should have been executed.'
+    expect(mock.callback.calls.count()).toBe 3, 'Only the three matching callbacks should have been executed.'
     expect(mock.otherCallback).not.toHaveBeenCalled()
 
   it 'should allow registration of input ports without a prefix.', ->
@@ -222,7 +222,7 @@ describe 'legatoRouter', ->
 
     portMock1.doStuff.apply portMock1, ['/1/note/1', 10]
 
-    expect(mock.callback.calls.length).toBe 2, 'The mock callback should have been called.'
+    expect(mock.callback.calls.count()).toBe 2, 'The mock callback should have been called.'
 
     legato.removeInput inputId1, '/input1'
 
@@ -232,9 +232,9 @@ describe 'legatoRouter', ->
     portMock1.doStuff.apply portMock1, ['/1/note/1', 10]
     portMock2.doStuff.apply portMock2, ['/1/note/1', 10]
 
-    expect(mock.callback.calls.length)
+    expect(mock.callback.calls.count())
       .toBe 2, 'The mock callback should not have been called after the input is removed.'
-    expect(mock.otherCallback.calls.length)
+    expect(mock.otherCallback.calls.count())
       .toBe 1, 'The other mock callback should still be functioning.'
 
     legato.removeInput inputId2

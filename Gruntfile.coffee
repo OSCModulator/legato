@@ -12,18 +12,15 @@ module.exports = (grunt) ->
   grunt.initConfig
     yeoman: yeomanConfig
 
-    jasmine_node:
-      specNameMatcher: "spec"
-      projectRoot: "."
-      requirejs: false
-      forceExit: true
-      useCoffee: true
-      extensions: 'coffee'
-      jUnit:
-        report: false
-        savePath: "./build/reports/jasmine/"
-        useDotNotation: true
-        consolidate: true
+    jasmine_nodejs:
+      options:
+        specNameSuffix: 'spec.coffee'
+        traceFatal: 2
+        reporters:
+          console:
+            verbosity: 1
+      unit:
+        specs: ['spec/node/**']
 
     karma:
       unit:
@@ -55,14 +52,14 @@ module.exports = (grunt) ->
         tasks: [
           'coffeelint:test'
           'coffeelint:lib'
-          'jasmine_node'
+          'test'
         ]
 
   require('load-grunt-tasks')(grunt)
 
-  grunt.registerTask('unit-watch', ['watch:unit-watch'])
+  grunt.registerTask('unit-watch', ['test', 'watch:unit-watch'])
 
-  grunt.registerTask('test', ['jasmine_node'])
+  grunt.registerTask('test', ['jasmine_nodejs:unit'])
 
   grunt.registerTask('test-browser', ['karma:unit'])
 

@@ -3,7 +3,8 @@
 router = require( './router' ).router
 utils = require( './utils' ).utils
 legatoMidi = require './midi'
-midi = require 'midi'
+midi = require './browser-midi'
+# midi = require 'midi'
 midiHelp = require 'midi-help'
 omgosc = require 'omgosc'
 legatoOSC = require './osc'

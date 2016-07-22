@@ -32,7 +32,7 @@ describe 'legato', ->
       exports: {},
       spyOn: spyOn
 
-    sandbox 'spec/rtMidiMock.coffee', rtMidiMockGlobals
+    sandbox 'spec/node/rtMidiMock.coffee', rtMidiMockGlobals
     rtMidiMock = rtMidiMockGlobals.exports.rtMidiMock
 
     legatoUtils = sandbox( 'lib/utils.coffee',

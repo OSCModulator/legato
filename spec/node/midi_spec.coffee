@@ -16,7 +16,7 @@ describe 'legato.midi', ->
       console: console
       spyOn: spyOn
 
-    sandbox('spec/rtMidiMock.coffee', rtMidiMockGlobals)
+    sandbox('spec/node/rtMidiMock.coffee', rtMidiMockGlobals)
     rtMidiMock = rtMidiMockGlobals.exports.rtMidiMock
 
     utils = sandbox( 'lib/utils.coffee',
@@ -114,8 +114,8 @@ describe 'legato.midi', ->
 
       rtMidiMock.inputs[0].messageCallbacks[0](0, [144, 62, 120])
 
-      expect(mock.mockCallback.calls.length).toBe 2
-      expect(mock.mockCallback.calls[1].args).toEqual ['/0/note/62', 120/127]
+      expect(mock.mockCallback.calls.count()).toBe 2
+      expect(mock.mockCallback.calls.argsFor(1)).toEqual ['/0/note/62', 120/127]
 
     xit 'should correctly parse noteOn messages.'
     xit 'should correctly parse noteOff messages.'
@@ -136,7 +136,7 @@ describe 'legato.midi', ->
       output = midi.Out 'output1', true
       output('noteOn', note, value, channel)
 
-      firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
+      firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       expect(firstCall.args[0][0]).toEqual(147)
       expect(firstCall.args[0][1]).toEqual(note)
       expect(firstCall.args[0][2]).toEqual(63)
@@ -148,7 +148,7 @@ describe 'legato.midi', ->
       output = midi.Out 'output1', true
       output('noteOff', note, value, channel)
 
-      firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
+      firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       expect(firstCall.args[0][0]).toEqual(136)
       expect(firstCall.args[0][1]).toEqual(note)
       expect(firstCall.args[0][2]).toEqual(50)
@@ -159,7 +159,7 @@ describe 'legato.midi', ->
       output = midi.Out 'output1', true
       output('pitchBend', value, channel)
 
-      firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
+      firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       expect(firstCall.args[0][0]).toEqual(231)
       expect(firstCall.args[0][1]).toEqual(50)
       expect(firstCall.args[0][2]).toEqual(0)
@@ -170,7 +170,7 @@ describe 'legato.midi', ->
       output = midi.Out 'output1', true
       output('channelPressure', value, channel)
 
-      firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
+      firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       expect(firstCall.args[0][0]).toEqual(211)
       expect(firstCall.args[0][1]).toEqual(127)
 
@@ -181,7 +181,7 @@ describe 'legato.midi', ->
       output = midi.Out 'output1', true
       output('cc', note, value, channel)
 
-      firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
+      firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       expect(firstCall.args[0][0]).toEqual(187)
       expect(firstCall.args[0][1]).toEqual(note)
       expect(firstCall.args[0][2]).toEqual(127)
@@ -190,14 +190,14 @@ describe 'legato.midi', ->
       output = midi.Out 'output1', true
       output('clock')
 
-      firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
+      firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       expect(firstCall.args[0][0]).toEqual(248)
 
     it 'should be able to send start messages.', ->
       output = midi.Out 'output1', true
       output('start')
 
-      firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
+      firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       expect(firstCall.args[0][0]).toEqual(250)
 
     it 'should be able to send songPosition messages.', ->
@@ -205,7 +205,7 @@ describe 'legato.midi', ->
       output = midi.Out 'output1', true
       output('songPosition', position)
 
-      firstCall = rtMidiMock.outputs[0].sendMessage.calls[0]
+      firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       # TODO What do real songPosition events look like?
       expect(firstCall.args[0][0]).toEqual(242)
       expect(firstCall.args[0][1]).toEqual(position)

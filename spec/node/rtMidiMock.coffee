@@ -38,11 +38,11 @@ exports.rtMidiMock = {
   input: ->
     inputMock = new MidiInputMock()
 
-    spyOn(inputMock, 'getPortCount').andCallThrough()
-    spyOn(inputMock, 'getPortName').andCallThrough()
+    spyOn(inputMock, 'getPortCount').and.callThrough()
+    spyOn(inputMock, 'getPortName').and.callThrough()
     spyOn(inputMock, 'openPort')
     spyOn(inputMock, 'openVirtualPort')
-    spyOn(inputMock, 'on').andCallThrough()
+    spyOn(inputMock, 'on').and.callThrough()
     spyOn(inputMock, 'closePort')
 
     exports.rtMidiMock.inputs.push(inputMock)
@@ -51,8 +51,8 @@ exports.rtMidiMock = {
   output: ->
     outputMock = new MidiOutputMock()
 
-    spyOn(outputMock, 'getPortCount').andCallThrough()
-    spyOn(outputMock, 'getPortName').andCallThrough()
+    spyOn(outputMock, 'getPortCount').and.callThrough()
+    spyOn(outputMock, 'getPortName').and.callThrough()
     spyOn(outputMock, 'openPort')
     spyOn(outputMock, 'openVirtualPort')
     spyOn(outputMock, 'sendMessage')
