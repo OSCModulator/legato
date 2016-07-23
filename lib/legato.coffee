@@ -19,6 +19,8 @@ legatoOSC.inject utils, omgosc
 @osc = legatoOSC
 # TODO Provide access to firmata and amixer
 
+# TODO Pass in config that defines which libraries
+# the user wants to utilize.
 @init = ->
   router.init()
 
@@ -36,3 +38,4 @@ legatoOSC.inject utils, omgosc
 
 @deinit = ->
   router.deinit()
+

@@ -15,6 +15,7 @@ describe 'legato.midi', ->
       exports:{}
       console: console
       spyOn: spyOn
+      jasmine: jasmine
 
     sandbox('spec/node/rtMidiMock.coffee', rtMidiMockGlobals)
     rtMidiMock = rtMidiMockGlobals.exports.rtMidiMock
@@ -60,8 +61,7 @@ describe 'legato.midi', ->
     expect(rtMidiMock.inputs[0].openVirtualPort).not.toHaveBeenCalled()
     expect(rtMidiMock.inputs[0].on).toHaveBeenCalled()
 
-  xit 'should be able to create multiple inputs listening on the same port.', ->
-    # TODO Bring this back once we are able to upgrade to node-midi@0.9.2.
+  it 'should be able to create multiple inputs.', ->
     input1 = midi.In('port1')
     router1 = {}
     input1(router1)
@@ -84,18 +84,28 @@ describe 'legato.midi', ->
     expect(rtMidiMock.inputs[0].closePort).toHaveBeenCalled()
 
   it 'should be able to create new midi outputs.', ->
-    id1 = midi.Out 'output1'
+    id1 = midi.Out 0
 
     expect(rtMidiMock.outputs.length).toBe 1, 'It should have created a midi output object.'
     expect(rtMidiMock.outputs[0].openPort).toHaveBeenCalled()
     expect(Object.keys(utils.closet).length).toBe 1, 'It should have added a close port callback to legato.'
 
-    id2 = midi.Out 'output1', true
+    id2 = midi.Out 0, true
 
     expect(rtMidiMock.outputs.length).toBe 2, 'It should have created a second output object.'
     expect(rtMidiMock.outputs[1].openPort).not.toHaveBeenCalled()
     expect(rtMidiMock.outputs[1].openVirtualPort).toHaveBeenCalled()
     expect(id1).not.toEqual id2, 'The two ouput ids should be unique.'
+
+  it 'should be able to create multiple outputs.', ->
+    output1 = midi.Out(0)
+    output2 = midi.Out(1, true)
+
+    expect(rtMidiMock.outputs.length).toBe(2, 'Two separate inputs should have been created.')
+    expect(rtMidiMock.outputs[1].openPort).not.toHaveBeenCalled()
+    expect(rtMidiMock.outputs[1].openVirtualPort).toHaveBeenCalled()
+    expect(output1).toEqual(jasmine.any(Function))
+    expect(output2).toEqual(jasmine.any(Function))
 
   describe 'parsing different types of midi in messages', ->
 
@@ -133,7 +143,7 @@ describe 'legato.midi', ->
       note = 60
       value = .5
       channel = 3
-      output = midi.Out 'output1', true
+      output = midi.Out 0, true
       output('noteOn', note, value, channel)
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
@@ -145,7 +155,7 @@ describe 'legato.midi', ->
       note = 65
       value = .4
       channel = 8
-      output = midi.Out 'output1', true
+      output = midi.Out 0, true
       output('noteOff', note, value, channel)
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
@@ -156,7 +166,7 @@ describe 'legato.midi', ->
     it 'should be able to send pitchBend messages.', -> 
       value = .4
       channel = 7
-      output = midi.Out 'output1', true
+      output = midi.Out 0, true
       output('pitchBend', value, channel)
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
@@ -167,7 +177,7 @@ describe 'legato.midi', ->
     it 'should be able to send channelPressure messages.', ->
       value = 1
       channel = 3
-      output = midi.Out 'output1', true
+      output = midi.Out 0, true
       output('channelPressure', value, channel)
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
@@ -178,7 +188,7 @@ describe 'legato.midi', ->
       note = 12
       value = 1
       channel = 11
-      output = midi.Out 'output1', true
+      output = midi.Out 0, true
       output('cc', note, value, channel)
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
@@ -187,14 +197,14 @@ describe 'legato.midi', ->
       expect(firstCall.args[0][2]).toEqual(127)
 
     it 'should be able to send clock messages.', ->
-      output = midi.Out 'output1', true
+      output = midi.Out 0, true
       output('clock')
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
       expect(firstCall.args[0][0]).toEqual(248)
 
     it 'should be able to send start messages.', ->
-      output = midi.Out 'output1', true
+      output = midi.Out 0, true
       output('start')
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
@@ -202,7 +212,7 @@ describe 'legato.midi', ->
 
     it 'should be able to send songPosition messages.', ->
       position = 87
-      output = midi.Out 'output1', true
+      output = midi.Out 0, true
       output('songPosition', position)
 
       firstCall = rtMidiMock.outputs[0].sendMessage.calls.first()
@@ -210,4 +220,53 @@ describe 'legato.midi', ->
       expect(firstCall.args[0][0]).toEqual(242)
       expect(firstCall.args[0][1]).toEqual(position)
       expect(firstCall.args[0][2]).toEqual(0)
+
+    it 'should be able to send to multiple ports.', ->
+      note = 12
+      value = 1
+      channel = 11
+      output1 = midi.Out 0
+      output2 = midi.Out 1
+
+      output1('noteOn', note, value, channel)
+      output2('noteOn', note, value, channel)
+
+      port1Send = rtMidiMock.outputs[0].sendMessage
+      port2Send = rtMidiMock.outputs[1].sendMessage
+
+      expect(port1Send).toHaveBeenCalled()
+      expect(port2Send).toHaveBeenCalled()
+
+    it 'should be able to send to the same port using multiple outputs.', ->
+      note = 12
+      value = 1
+      channel = 11
+      output1 = midi.Out 0
+      output2 = midi.Out 0
+
+      output1('noteOn', note, value, channel)
+      output2('noteOn', note, value, channel)
+
+      port1Send = rtMidiMock.outputHosts[0].send
+      port2Send = rtMidiMock.outputHosts[1].send
+
+      expect(port1Send).toHaveBeenCalled()
+      expect(port1Send.calls.count()).toBe(2)
+      expect(port2Send).not.toHaveBeenCalled()
+
+    it 'should be able to send to the correct output.', ->
+      note = 12
+      value = 1
+      channel = 11
+      output1 = midi.Out 0
+      output2 = midi.Out 1
+
+      output1('noteOn', note, value, channel)
+
+      port1Send = rtMidiMock.outputHosts[0].send
+      port2Send = rtMidiMock.outputHosts[1].send
+
+      expect(port1Send).toHaveBeenCalled()
+      expect(port1Send.calls.count()).toBe(1)
+      expect(port2Send).not.toHaveBeenCalled()
 

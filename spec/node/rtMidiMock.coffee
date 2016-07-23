@@ -1,7 +1,14 @@
 'use strict'
 
+inputs = ['port1', 'port2']
+outputs = ['output1', 'output2']
+outputHosts = [
+  {send: jasmine.createSpy('output1.send')}
+  {send: jasmine.createSpy('output2.send')}
+]
+
 class MidiInputMock
-  inputs: ['port1', 'port2']
+  inputs: inputs
   messageCallbacks: []
   getPortCount: ->
     return @inputs.length
@@ -17,17 +24,17 @@ class MidiInputMock
     return true
 
 class MidiOutputMock
-  outputs: ['output1', 'output2']
-  messageCallbacks: []
+  outputs: outputs
   getPortCount: ->
     return @outputs.length
   getPortName: (index) ->
     return @outputs[index]
-  openPort: ->
+  openPort: (@port) ->
     return true
-  openVirtualPort: ->
+  openVirtualPort: (@port) ->
     return true
-  sendMessage: ->
+  sendMessage: (message) ->
+    outputHosts[@port].send(message)
     return true
   closePort: ->
     return true
@@ -35,6 +42,7 @@ class MidiOutputMock
 exports.rtMidiMock = {
   inputs:[],
   outputs:[],
+  outputHosts: outputHosts
   input: ->
     inputMock = new MidiInputMock()
 
@@ -53,9 +61,9 @@ exports.rtMidiMock = {
 
     spyOn(outputMock, 'getPortCount').and.callThrough()
     spyOn(outputMock, 'getPortName').and.callThrough()
-    spyOn(outputMock, 'openPort')
-    spyOn(outputMock, 'openVirtualPort')
-    spyOn(outputMock, 'sendMessage')
+    spyOn(outputMock, 'openPort').and.callThrough()
+    spyOn(outputMock, 'openVirtualPort').and.callThrough()
+    spyOn(outputMock, 'sendMessage').and.callThrough()
     spyOn(outputMock, 'closePort')
 
     exports.rtMidiMock.outputs.push(outputMock)

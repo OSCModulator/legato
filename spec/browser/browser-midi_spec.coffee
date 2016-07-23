@@ -23,7 +23,7 @@ describe 'browser-midi', ->
 
     it 'should resolve the ready promise when midi becomes available.', (done) ->
       input.ready().then (hasMidi) ->
-        expect(hasMidi).toBe(true)
+        expect(hasMidi).toEqual(jasmine.any(MIDIAccess))
         done()
       .catch (e) ->
         expect(e).toBe(false)
@@ -47,7 +47,7 @@ describe 'browser-midi', ->
 
     it 'should resolve the ready promise when midi becomes available.', (done) ->
       output.ready().then (hasMidi) ->
-        expect(hasMidi).toBe(true)
+        expect(hasMidi).toEqual(jasmine.any(MIDIAccess))
         done()
       .catch (e) ->
         expect(e).toBe(false)

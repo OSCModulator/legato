@@ -28,7 +28,7 @@ describe 'browser-midi', ->
 
     describe 'when requestMIDIAccess fails', ->
       beforeEach ->
-        midiPromise = Promise.reject()
+        midiPromise = Promise.reject('rejected')
         input = createInput(midiPromise)
 
       it 'should return false from the ready promise if it cannot access midi.', (done) ->
@@ -36,7 +36,7 @@ describe 'browser-midi', ->
           expect('Should not have loaded midi.').toEqual(false)
           done()
         .catch (response) ->
-          expect(response).toEqual('Unable to get MIDI access.')
+          expect(response).toEqual('rejected')
           done()
 
       it 'should should show no ports if it fails to access midi.', (done) ->
@@ -96,8 +96,7 @@ describe 'browser-midi', ->
           done()
 
       it 'should be able to open a port.', (done) ->
-        input.ready().then ->
-          input.openPort(1)
+        input.openPort(1).then ->
           expect(midiAccess.inputs.get('1').onmidimessage).not.toBeNull()
           done()
         .catch (e) ->
@@ -106,10 +105,10 @@ describe 'browser-midi', ->
 
       it 'should be able to open a virtual port.', (done) ->
         input.ready().then ->
-          input.openVirtualPort(2)
-          # The Ableton port is on a non-sequential id for testing purposes.
-          expect(midiAccess.inputs.get('33').onmidimessage).not.toBeNull()
-          done()
+          input.openVirtualPort(2).then ->
+            # The Ableton port is on a non-sequential id for testing purposes.
+            expect(midiAccess.inputs.get('33').onmidimessage).not.toBeNull()
+            done()
         .catch (e) ->
           expect(e).toBe(false)
           done()
@@ -123,9 +122,8 @@ describe 'browser-midi', ->
       it 'should be able to tell a listener when midi messages are received.', (done) ->
         messageSpy = jasmine.createSpy('messageSpy')
 
-        input.ready().then ->
-          input.openPort(1)
-          input.on('message', messageSpy)
+        input.openPort(1)
+        input.on('message', messageSpy).then ->
           receiveMessage('1', 123, [1,2,3])
           expect(messageSpy).toHaveBeenCalledWith(123, [1,2,3])
           done()
@@ -134,21 +132,18 @@ describe 'browser-midi', ->
           done()
 
       it 'should be able to notify multiple listeners of midi events.', (done) ->
-        spies = []
-        for i in [0..3]
-          spies.push jasmine.createSpy("messageSpy#{i}")
+        first = jasmine.createSpy('first')
+        second = jasmine.createSpy('second')
+        third = jasmine.createSpy('third')
 
-        input.ready().then ->
-          input.openPort(1)
-
-          for spy in spies
-            input.on('message', spy)
-
+        input.openPort(1)
+        input.on('message', first)
+        input.on('message', second)
+        input.on('message', third).then ->
           receiveMessage('1', 123, [1,2,3])
-
-          for spy in spies
-            expect(spy).toHaveBeenCalledWith(123, [1,2,3])
-
+          expect(first).toHaveBeenCalledWith(123, [1,2,3])
+          expect(second).toHaveBeenCalledWith(123, [1,2,3])
+          expect(third).toHaveBeenCalledWith(123, [1,2,3])
           done()
         .catch (e) ->
           expect(e).toBe(false)
@@ -159,32 +154,26 @@ describe 'browser-midi', ->
         otherSpy = jasmine.createSpy('otherSpy')
 
         otherInput = createInput(midiPromise)
-        otherInput.ready().then ->
-          otherInput.openPort(0)
-          otherInput.on('message', otherSpy)
-
-          input.ready().then ->
-            input.openPort(1)
-            input.on('message', messageSpy)
-
+        otherInput.openPort(0)
+        otherInput.on('message', otherSpy).then ->
+          input.openPort(1)
+          input.on('message', messageSpy).then ->
             # Receive a message for the other spy.
             receiveMessage('0', 123, [1,2,3])
 
             expect(messageSpy).not.toHaveBeenCalled()
             expect(otherSpy).toHaveBeenCalled()
             done()
-          .catch (e) ->
-            expect(e).toBe(false)
-            done()
+        .catch (e) ->
+          expect(e).toBe(false)
+          done()
 
       it 'should be able to close a midi port.', (done) ->
         messageSpy = jasmine.createSpy('messageSpy')
 
-        input.ready().then ->
-          input.openPort(1)
-          input.on('message', messageSpy)
-          input.closePort()
-
+        input.openPort(1)
+        input.on('message', messageSpy)
+        input.closePort().then ->
           receiveMessage('1', 123, [1,2,3])
           expect(messageSpy).not.toHaveBeenCalled()
           expect(midiAccess.inputs.get('1').close ).toHaveBeenCalled()
@@ -196,17 +185,12 @@ describe 'browser-midi', ->
       it 'should still be ready after closing the port.', (done) ->
         messageSpy = jasmine.createSpy('messageSpy')
 
-        input.ready().then ->
-          input.openPort(1)
-          input.on('message', messageSpy)
-          input.closePort()
-
-          input.ready().then (result) ->
-            expect(result).toBe(true)
-            done()
-          .catch (e) ->
-            expect(e).toBe(false)
-            done()
+        input.openPort(1)
+        input.on('message', messageSpy)
+        input.closePort()
+        input.ready().then (result) ->
+          expect(result).toBe(midiAccess)
+          done()
         .catch (e) ->
           expect(e).toBe(false)
           done()
@@ -236,7 +220,7 @@ describe 'browser-midi', ->
 
     describe 'when requestMIDIAccess fails', ->
       beforeEach ->
-        midiPromise = Promise.reject()
+        midiPromise = Promise.reject('nope')
         output = createOutput(midiPromise)
 
       it 'should return false from the ready promise if it cannot access midi.', (done) ->
@@ -244,7 +228,7 @@ describe 'browser-midi', ->
           expect('Should not have loaded midi.').toEqual(false)
           done()
         .catch (response) ->
-          expect(response).toEqual('Unable to get MIDI access.')
+          expect(response).toEqual('nope')
           done()
 
       it 'should should show no ports if it fails to access midi.', (done) ->
@@ -304,8 +288,7 @@ describe 'browser-midi', ->
           done()
 
       it 'should be able to open a port.', (done) ->
-        output.ready().then ->
-          output.openPort(1)
+        output.openPort(1).then ->
           expect(output._port).toBe(midiAccess.outputs.get('1'))
           done()
         .catch (e) ->
@@ -313,8 +296,7 @@ describe 'browser-midi', ->
           done()
 
       it 'should be able to open a virtual port.', (done) ->
-        output.ready().then ->
-          output.openVirtualPort(1)
+        output.openVirtualPort(1).then ->
           expect(output._port).toBe(midiAccess.outputs.get('1'))
           done()
         .catch (e) ->
@@ -322,9 +304,8 @@ describe 'browser-midi', ->
           done()
 
       it 'should be able to send a midi message.', (done) ->
-        output.ready().then ->
-          output.openPort(0)
-          output.sendMessage 'message'
+        output.openPort(0)
+        output.sendMessage( 'message' ).then ->
           expect( midiAccess.outputs.get('0').send ).toHaveBeenCalledWith('message')
           done()
         .catch (e) ->
@@ -332,10 +313,9 @@ describe 'browser-midi', ->
           done()
 
       it 'should be able to close a midi port.', (done) ->
-        output.ready().then ->
-          output.openPort(0)
-          output.closePort()
-          output.sendMessage 'message'
+        output.openPort(0)
+        output.closePort()
+        output.sendMessage( 'message' ).then ->
           expect( midiAccess.outputs.get('0').send ).not.toHaveBeenCalled()
           expect( midiAccess.outputs.get('0').close ).toHaveBeenCalled()
           done()
@@ -344,15 +324,11 @@ describe 'browser-midi', ->
           done()
 
       it 'should still be ready after closing the port.', (done) ->
-        output.ready().then ->
-          output.openPort(2)
-          output.closePort()
-          output.ready().then (result) ->
-            expect(result).toBe(true)
-            done()
-          .catch (e) ->
-            expect(e).toBe(false)
-            done()
+        output.openPort(2)
+        output.closePort()
+        output.ready().then (result) ->
+          expect(result).toBe(midiAccess)
+          done()
         .catch (e) ->
           expect(e).toBe(false)
           done()

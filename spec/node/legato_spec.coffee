@@ -29,8 +29,9 @@ describe 'legato', ->
 
     rtMidiMockGlobals =
       console: console
-      exports: {},
+      exports: {}
       spyOn: spyOn
+      jasmine: jasmine
 
     sandbox 'spec/node/rtMidiMock.coffee', rtMidiMockGlobals
     rtMidiMock = rtMidiMockGlobals.exports.rtMidiMock

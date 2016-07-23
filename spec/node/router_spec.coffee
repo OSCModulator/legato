@@ -241,3 +241,4 @@ describe 'legatoRouter', ->
 
     expect(Object.keys(legatoUtils.closet).length).toBe 0, 'There should not be any shutdown methods left.'
     expect(Object.keys(legatoUtils.closet).length).toBe 0, 'All of the routes should have been removed.'
+

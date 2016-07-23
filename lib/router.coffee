@@ -26,6 +26,7 @@ class Router
   # @param path {String} The path to test for matches. See legato.on for more info.
   # @param val {int} The value of the event that triggered this dispatch.
   @dispatch = dispatch = (path, val) ->
+    utils.___ 'dispatching', path, val
     for id, [path_, cb] of routes
       if path.match path_
         (utils.bind cb, path:path, val:val) val, path
@@ -36,10 +37,10 @@ class Router
   # Register a callback prefix. Each input/output port created is given a name and dispatches
   # under that name. For example, creating a midi input port requires the following:
   # legato.in( 'myMidiPortName', legato.midi.in( 1 ) )
-  # When messages come in on midi port 1, they will match routes that begin with '/myMidiPortName'
+  # When messages come in on midi port 1, they will match routes that begin with 'myMidiPortName'.
   # @param prefix {String} (optional) The prefix to give this input.
   # @param input {Function} A function that takes a callback to be executed when events occur on this port.
-  # @return {int} The id of the input created.
+  # @return {int} The id of the input created which can be used to close the input.
   # TODO Do we want to guard against reserved prefix that would mess with our routing (ie. '/:')?
   @in = (prefix, input) ->
     id = utils.generateId()

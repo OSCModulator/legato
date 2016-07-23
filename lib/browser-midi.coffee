@@ -23,20 +23,20 @@ class LegatoMidiPort
 
     @_midi = null
 
-    @_midiReady = new Promise (resolve, reject) =>
-      if navigator.requestMIDIAccess
-        navigator.requestMIDIAccess().then( (midiAccess) =>
-          @_midi = midiAccess
-          if window
-            window.midi = midiAccess
-          resolve(true)
-        ).catch (error) =>
-          @_midi = null
-          console.error('Unable to get MIDI access.', error)
-          reject('Unable to get MIDI access.')
+    if navigator.requestMIDIAccess
+      @_requestingMidi = navigator.requestMIDIAccess()
+      @_requestingMidi.then( (midiAccess) =>
+        @_midi = midiAccess
+        if window
+          window.midi = midiAccess
+      ).catch (error) =>
+        @_midi = null
+        console.error('Unable to get MIDI access.', error)
+    else
+      console.error('navigator.requestMIDIAccess is not available.')
+      @_requestingMidi = Promise.reject('navigator.requestMIDIAccess is not available.')
 
-  ready: ->
-    return @_midiReady
+  ready: -> @_requestingMidi
 
   getPortCount: ->
     if @_midi
@@ -73,6 +73,9 @@ class LegatoMidiInput extends LegatoMidiPort
     # port and then connect to the new one?
     if @_midi and not @_port
       @_port = @_getPortAtIndex(i, @_midi.inputs.entries())
+      # TODO Resetting the onmidimessage method below means that only one input
+      # instance can listen to a midi. We should instead point onmidimessage to
+      # a class level registry of port listeners.
       @_port.onmidimessage = (event) => @_notifyListeners(event)
       return true
     return false
@@ -82,23 +85,25 @@ class LegatoMidiInput extends LegatoMidiPort
     super('input')
 
   openPort: (i) ->
-    @_doOpenPort(i)
+    @ready().then =>
+      @_doOpenPort(i)
 
   openVirtualPort: (i) ->
-    @_doOpenPort(i)
+    @ready().then =>
+      @_doOpenPort(i)
 
   on: (event, cb) ->
-    switch event
-      when 'message'
-        @_listeners.push cb
-
-    return false
+    @ready().then =>
+      switch event
+        when 'message'
+          @_listeners.push cb
 
   closePort: ->
-    if @_port
-      @_port.close()
-      @_listeners = []
-      @_port = null
+    @ready().then =>
+      if @_port
+        @_port.close()
+        @_listeners = []
+        @_port = null
 
 class LegatoMidiOutput extends LegatoMidiPort
   _doOpenPort: (i) ->
@@ -114,21 +119,23 @@ class LegatoMidiOutput extends LegatoMidiPort
     super('output')
 
   openPort: (i) ->
-    @_doOpenPort(i)
+    @ready().then =>
+      @_doOpenPort(i)
 
   openVirtualPort: (i) ->
-    @_doOpenPort(i)
+    @ready().then =>
+      @_doOpenPort(i)
 
   sendMessage: (data) ->
-    if @_midi and @_port
-      @_port.send(data)
-      return true
-    return false
+    @ready().then =>
+      if @_midi and @_port
+        @_port.send(data)
 
   closePort: ->
-    if @_port
-      @_port.close()
-      @_port = null
+    @ready().then =>
+      if @_port
+        @_port.close()
+        @_port = null
 
 @input = LegatoMidiInput
 @output = LegatoMidiOutput
