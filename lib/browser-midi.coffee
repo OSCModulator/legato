@@ -127,6 +127,7 @@ class LegatoMidiOutput extends LegatoMidiPort
       @_doOpenPort(i)
 
   sendMessage: (data) ->
+    # TODO An asynchronous API here introduces latency.
     @ready().then =>
       if @_midi and @_port
         @_port.send(data)
