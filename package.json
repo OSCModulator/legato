@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "coffee-script": "^1.9.1",
-    "firmata": "~0.3.0",
     "lodash": "^4.13.1",
     "midi": "^0.9.5",
     "midi-help": "^0.2.1",
