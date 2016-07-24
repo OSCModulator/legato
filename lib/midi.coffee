@@ -63,7 +63,7 @@ parse = (port, msg) ->
     # TODO Should we guard against opening virtual ports on systems that don't provide them?
     midi_in["open#{virtual and 'Virtual' or ''}Port"] port
     midi_in.on 'message', (deltaTime, msg) ->
-      ___ "received midi #{msg}"
+      ___ "[#{deltaTime}] received midi #{msg}"
       router parse(port, msg)...
     return -> midi_in.closePort(); ___ 'in: close'
 
