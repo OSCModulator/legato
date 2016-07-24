@@ -1,6 +1,6 @@
 'user strict'
 
-L = utils = midi = parser = midi_in = ___ = null
+L = utils = midi = parser = midiInputQuery = midiOutputQuery = ___ = null
 
 @inject = (router, legatoUtils, rtMidi, midiHelp) ->
   L = router
@@ -55,17 +55,16 @@ parse = (port, msg) ->
 @In = (port, virtual=no) ->
   (router) ->
     ___ "in: open #{virtual and 'virtual ' or ''}port #{port}"
-    # TODO Should be able to open multiple midi ports (can only open one at the moment
-    # due to a defect with node-midi. Remember that we'll only need one midi instance per port.
-    unless midi_in?
-      midi_in = new midi.input()
+    input = new midi.input()
 
     # TODO Should we guard against opening virtual ports on systems that don't provide them?
-    midi_in["open#{virtual and 'Virtual' or ''}Port"] port
-    midi_in.on 'message', (deltaTime, msg) ->
+    input["open#{virtual and 'Virtual' or ''}Port"] port
+    input.on 'message', (deltaTime, msg) ->
       ___ "[#{deltaTime}] received midi #{msg}"
       router parse(port, msg)...
-    return -> midi_in.closePort(); ___ 'in: close'
+    return ->
+      input.closePort()
+      ___ "in: port #{port} close"
 
 # Returns a function that can be used to send a midi message on the port passed.
 # @param port {int | string} If you wish to open your own midi port, this will be the name of your
@@ -90,13 +89,13 @@ parse = (port, msg) ->
 # port at that index.
 @Out = (port, virtual=no) ->
   ___ "out: open #{virtual and 'virtual ' or ''}port #{port}"
-  # TODO Will we run into the same issue with crashes where openning an output
-  # without listening to it causes a crash?
-  midi_out = new midi.output()
-  midi_out["open#{virtual and 'Virtual' or ''}Port"] port
+  output = new midi.output()
+  output["open#{virtual and 'Virtual' or ''}Port"] port
 
   # Store it so it can be destroyed later.
-  utils.store -> midi_out.closePort(); ___ 'out: close'
+  utils.store ->
+    output.closePort()
+    ___ "out: port #{port} close"
 
   (type, rest...) ->
     # Normalize the value parameter which is passed in a different position
@@ -111,27 +110,24 @@ parse = (port, msg) ->
 
     parsed = parser[type].apply(parser, rest)
     ___ "out #{parsed}"
-    midi_out.sendMessage(parsed)
+    output.sendMessage(parsed)
 
 
 @ins = ->
   ___ "in: retrieving available ports."
-  # TODO Can we avoid the crashes by shutting down this input object when we're finished?
-  unless midi_in?
-    midi_in = new midi.input()
+  if not midiInputQuery then midiInputQuery = new midi.input()
 
-  ___ "in: total open ports #{midi_in.getPortCount()}"
-  for i in [0...midi_in.getPortCount()]
-    ___ "in: port #{i} is #{midi_in.getPortName(i)}"
-    midi_in.getPortName i
+  ___ "in: total open ports #{midiInputQuery.getPortCount()}"
+  for i in [0...midiInputQuery.getPortCount()]
+    ___ "in: port #{i} is #{midiInputQuery.getPortName(i)}"
+    midiInputQuery.getPortName i
 
 @outs = ->
   ___ "out: retrieving available ports."
-  # TODO Will we run into the same issue with crashes where openning an output
-  # without listening to it causes a crash?
-  midi_out = new midi.output()
-  ___ "out: total open ports #{midi_out.getPortCount()}"
-  for o in [0...midi_out.getPortCount()]
-    ___ "out: port #{o} is #{midi_out.getPortName(o)}"
-    midi_out.getPortName o
+  if not midiOutputQuery then midiOutputQuery = new midi.output()
+
+  ___ "out: total open ports #{midiOutputQuery.getPortCount()}"
+  for o in [0...midiOutputQuery.getPortCount()]
+    ___ "out: port #{o} is #{midiOutputQuery.getPortName(o)}"
+    midiOutputQuery.getPortName o
 

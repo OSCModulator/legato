@@ -7,18 +7,19 @@ class Router
   @inject = (legatoUtils) ->
     utils = legatoUtils
 
-  @init = ->
-    @deinit()
-    utils.init()
-    utils.___ 'init'
-    return this
-
   # Used to create unique ids for routes.
   routesCreated = 0
 
   # A list of midi and osc routes with callbacks.
   # TODO Make this private again?
   @routes = routes = {}
+
+  @init = ->
+    @deinit()
+    routesCreated = 0
+    utils.init()
+    utils.___ 'init'
+    return this
 
   # Executes any callbacks that match the path specified.
   # In other words, given the path '/input1/1/note/32', this method will call any callbacks
@@ -66,9 +67,9 @@ class Router
   # @param cb {Function} The callback function to execute when matching events occur.
   @on = (path, cb) ->
     path_ = '^' + (path.replace /\:([^\/]*)/g, '([^/]*)') + '$'
-    utils.___ 'route+ ', path, ' = ', path_
     routesCreated += 1
     routes[routesCreated] = [path_, cb, path]
+    utils.___ 'route+ ', routesCreated, path, ' = ', path_
     return routesCreated
 
   # Remove a route from legato.
@@ -96,6 +97,7 @@ class Router
   # TODO Is it ok to remove this method from the global scope? Should I put it back in the global space
   # so we're not changing things unnecessarily?
   @deinit = ->
+    utils.___ 'deinit'
     # Call each of the shutdown callbacks in the closet.
     utils.callAll()
     # Reset both the closet and the routes.
