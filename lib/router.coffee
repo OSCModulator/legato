@@ -97,7 +97,7 @@ class Router
   # TODO Is it ok to remove this method from the global scope? Should I put it back in the global space
   # so we're not changing things unnecessarily?
   @deinit = ->
-    utils.___ 'deinit'
+    # utils.___ 'deinit'
     # Call each of the shutdown callbacks in the closet.
     utils.callAll()
     # Reset both the closet and the routes.
