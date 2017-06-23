@@ -43,17 +43,16 @@ ddescribe 'legato.http', ->
     it 'should be able to POST over http.', ->
       path = '/that/path'
       method = 'POST'
-      @sender(path, method)
+      body = 'this body, that body'
+      @sender(path, body, method)
       expect(@request).toHaveBeenCalledWith({
         uri:path
         baseUrl: @baseUrl
         method:method
-        body:''
+        body:body
       }, jasmine.any(Function))
 
-    xit 'should be able to set the POST body.'
     xit 'should be able to PUT over http.'
-    xit 'should be able to set the PUT body.'
     xit 'should be able to DELETE over http.'
 
   xit 'should be able to make HTTPS requests.'
