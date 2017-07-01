@@ -67,12 +67,15 @@ parse = (port, msg) ->
       ___ "in: port #{port} close"
 
 # Returns a function that can be used to send a midi message on the port passed.
+#
 # @param port {int | string} If you wish to open your own midi port, this will be the name of your
-# midi port. If you wish to connect to an existing port, this is the port id 0-N. If you
-# pass ({int}, false), your int will be the new port name (which is probably not what you intend).
+#   midi port. If you wish to connect to an existing port, this is the port id 0-N. If you
+#   pass ({int}, false), your int will be the new port name (which is probably not what you intend).
+#
 # @param virtual {boolean} If true, you are opening a virtual port. If false, you intend to 
-# send messages on an existing port (default). Sending on an existing port will fail if that
-# port doesn't exist yet.
+#   send messages on an existing port (default). Sending on an existing port will fail if that
+#   port doesn't exist yet.
+#
 # @return {Function} A function that can be called to send a midi message on the port you 
 # specified.
 #   The function takes the following parameters:
@@ -113,6 +116,9 @@ parse = (port, msg) ->
     output.sendMessage(parsed)
 
 
+# TODO We could use node-usb to discover when new USB devices
+# are connected to the system and then rescan. If we do that,
+# it would probably make sense to emit an event from this class.
 @ins = ->
   ___ "in: retrieving available ports."
   if not midiInputQuery then midiInputQuery = new midi.input()

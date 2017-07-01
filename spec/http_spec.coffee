@@ -3,7 +3,7 @@
 sandbox = require('./utils').sandbox
 _ = require('lodash')
 
-ddescribe 'legato.http', ->
+describe 'legato.http', ->
   beforeEach ->
     genericGlobals =
       console: console
