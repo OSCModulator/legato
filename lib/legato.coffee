@@ -8,14 +8,18 @@ midiHelp = require 'midi-help'
 omgosc = require 'omgosc'
 legatoOSC = require './osc'
 _ = require 'lodash'
+legatoLifx = require './lifx-light'
+LIFX = require('node-lifx').Client
 
 utils.inject _
 router.inject utils
 legatoMidi.inject router, utils, midi, midiHelp
 legatoOSC.inject utils, omgosc
+legatoLifx.inject utils, new LIFX()
 
 @midi = legatoMidi
 @osc = legatoOSC
+@lifx = legatoLifx
 # TODO Provide access to firmata and amixer
 
 @init = ->

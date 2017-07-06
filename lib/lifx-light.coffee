@@ -2,6 +2,8 @@
 
 utils = client = ___ = lights = null
 
+@initialized = false
+
 # Lifx dependencies
 #
 # @param legatoUtils
@@ -28,6 +30,7 @@ utils = client = ___ = lights = null
 #   `lifx.once('light-new', callback)`. To recieve, all new
 #   light events, use `lifx.on('light-new', callback)`
 @init = (cb) ->
+  @initialized = true
   client.init()
   if cb
     client.on 'light-new', (light) ->
@@ -68,6 +71,8 @@ utils = client = ___ = lights = null
 # event to know when new lights are discovered.
 @outs = ->
   ___ 'out: retrieving available lights.'
+  if not initialized
+    @init()
 
   return client.lights()
 
