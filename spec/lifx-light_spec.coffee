@@ -95,6 +95,9 @@ ddescribe 'legato.lifx-light', ->
       it 'should be possible to query for the lights.', ->
         expect(lifx.outs()).toEqual(lights)
 
+  describe 'asking for lights without first initialzing the client', ->
+    xit 'should initialize the client for us.'
+
   describe 'after discovering some lights and configuring a sender for the first light', ->
     lights = sender = null
 

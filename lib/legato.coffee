@@ -15,7 +15,7 @@ utils.inject _
 router.inject utils
 legatoMidi.inject router, utils, midi, midiHelp
 legatoOSC.inject utils, omgosc
-legatoLifx.inject utils, new LIFX()
+legatoLifx.inject utils, _, new LIFX()
 
 @midi = legatoMidi
 @osc = legatoOSC

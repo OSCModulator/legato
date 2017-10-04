@@ -112,7 +112,7 @@ parse = (port, msg) ->
       rest[index] = parseInt(rest[index] * 127)
 
     parsed = parser[type].apply(parser, rest)
-    ___ "out #{parsed}"
+    ___ "out: #{parsed}"
     output.sendMessage(parsed)
 
 

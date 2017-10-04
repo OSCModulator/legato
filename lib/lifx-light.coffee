@@ -1,18 +1,20 @@
 'use strict'
 
-utils = client = ___ = lights = null
+utils = _ = client = ___ = lights = null
 
 @initialized = false
 
 # Lifx dependencies
 #
 # @param legatoUtils
+# @param lodash The lodash library
 # @param lifxClient The LifxClient instance retrieved from
 #     `new require('node-lifx').Client()`
 #
 # @return void
-@inject = (legatoUtils, lifxClient) ->
+@inject = (legatoUtils, lodash, lifxClient) ->
   utils = legatoUtils
+  _ = lodash
   client = lifxClient
   ___ = utils.____ '[lifx]'
   return
@@ -23,15 +25,17 @@ utils = client = ___ = lights = null
 @once = (event, cb) ->
   return client.once(event, cb)
 
-# @param cb A callback function that will be notified when the
+# @param opts {Object} An object used to configure the LIFX client as described
+#   at https://github.com/MariusRumpf/node-lifx
+# @param cb {Function} A callback function that will be notified when the
 #   first light is discovered. The discovered light will be
 #   passed to the callback. Only the first light discovery will
 #   be sent, therefore this is equivalient to calling
 #   `lifx.once('light-new', callback)`. To recieve, all new
 #   light events, use `lifx.on('light-new', callback)`
-@init = (cb) ->
+@init = (opts, cb) ->
   @initialized = true
-  client.init()
+  client.init(opts)
   if cb
     client.on 'light-new', (light) ->
       ___ 'light discovered'
@@ -54,15 +58,17 @@ utils = client = ___ = lights = null
 #     color.
 @Out = (id) ->
   light = client.light(id)
-  ___ "out: creating message sender for light #{id}, #{light.getLabel()}"
+  ___ "out: creating message sender for light #{id}"
 
   # TODO Should we worry about cleaning anything up?
 
-  return (color='#ffffff', duration=0) ->
+  messageRate = 1000/20
+  sender = (color='#ffffff', duration=0) ->
     # TODO Make sure the light is on?
     light.colorRgbHex(color, duration)
-    # TODO How do we want to limit the color changes? Set a timeout based
-    # on the duration?
+    ___ "out: #{color} in #{duration}"
+
+  return _.throttle( sender, messageRate, leading:true )
 
 
 # Retrieve the currently discovered lights. Light discovery is
@@ -71,7 +77,7 @@ utils = client = ___ = lights = null
 # event to know when new lights are discovered.
 @outs = ->
   ___ 'out: retrieving available lights.'
-  if not initialized
+  if not @initialized
     @init()
 
   return client.lights()
